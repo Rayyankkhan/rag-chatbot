@@ -1,0 +1,55 @@
+
+
+Jinnah University for Women (JUW) - 
+Knowledge Base Content 
+1. University Introduction 
+• Founder: Al Haj Moulvi Rayazuddin Ahmed (T.I). 
+• Vision: "To educate mother, to educate the nation." 
+• Status: First women's university in Pakistan, HEC recognized. 
+• Location: Nazimabad, Karachi. 
+2. Admission Process & Eligibility (2026-27) 
+• Cycles: Spring aur Fall admissions. 
+• General Eligibility: * Minimum 50% marks Intermediate (Pre-Medical/Pre-
+Engineering/Commerce) mein. 
+o 60% marks Software Engineering aur specific professional programs ke liye 
+zaroori hain. 
+• Entrance Test: University apna test conduct karti hai ya NTS (NAT-I/II) ke results 
+accept karti hai. 
+• Documents Required: 
+o Matriculation Certificate & Marksheet. 
+o Intermediate Part-I & II Marksheets. 
+o CNIC/B-Form copy. 
+o 3 Passport size photographs. 
+3. Specific Department: Faculty of Science & Technology 
+Ye data chatbot ke liye boht kaam aayega: 
+Department of Computer Science & IT 
+• Programs: BS (CS), BS (SE), BS (IT), BS (Artificial Intelligence), BS (Cyber Security). 
+• Core Subjects (Example BS-SE): 
+o Introduction to Computing & Programming. 
+o Object-Oriented Programming (OOP). 
+o Data Structures & Algorithms (DSA). 
+o Database Management Systems (DBMS). 
+o Software Requirement Engineering. 
+• Electives: Mobile App Development, Deep Learning, Big Data, DevOps. 
+Department of Pharmacy (Pharm-D) 
+• Duration: 5 Years (10 Semesters). 
+
+• Accreditation: Pharmacy Council of Pakistan se approved. 
+4. Fee Structure (Estimated) 
+• Application Processing Fee: PKR 3,000/- 
+• Admission Fee (One-time): PKR 20,000/- 
+• Tuition Fee (Per Credit Hour): Approx. PKR 9,000/- (Note: Fees department ke hisab 
+se thori vary kar sakti hai). 
+• Scholarships: * Merit-based: Top students ke liye. 
+o Need-based: Financial support ki zaroorat wale bacho ke liye. 
+5. Campus Facilities 
+• Transport: Karachi ke har ilaqe ke liye buses/points available hain. 
+• Labs: Dedicated Software Labs, Physics, aur Chemistry Labs. 
+• Library: Physical library ke saath digital library access bhi hai. 
+ 
+Aapke Chatbot ke liye Logic Structure (Tips): 
+Jab aap ye data chatbot mein feed karen, to usey in labels ke saath chunk karen: 
+1. #Admission_Eligibility: Admission criteria aur documents ke liye. 
+2. #Course_Details: Departments aur subjects ke liye. 
+3. #Fee_Support: Fees aur scholarships ke sawalon ke liye. 
+ 
