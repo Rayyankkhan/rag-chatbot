@@ -21,17 +21,23 @@ const embeddings = new OpenAIEmbeddings({
 });
 
 const llm = new ChatOpenAI({
-    openAIApiKey: process.env.OPENAI_API_KEY,
-    modelName: "gpt-3.5-turbo",
+    apiKey: process.env.GROQ_API_KEY,
+    model: "llama-3.3-70b-versatile",
     temperature: 0.2,
     streaming: true,
+    configuration: {
+        baseURL: "https://api.groq.com/openai/v1",
+    }
 });
 
 // ─── Vector Store ─────────────────────────────────────────────────────────────
 
 const getVectorStore = () => {
+    if (!mongoose.connection.db) {
+        throw new Error("MongoDB connection not established");
+    }
     return new MongoDBAtlasVectorSearch(embeddings, {
-        collection: mongoose.connection.collection("document_vectors"),
+        collection: mongoose.connection.db.collection("document_vectors"),
         indexName: process.env.VECTOR_INDEX_NAME || "vector_index",
         textKey: "text",
         embeddingKey: "embedding",
@@ -119,40 +125,64 @@ export const createRAGChain = async () => {
 // ─── Streaming Chat ───────────────────────────────────────────────────────────
 
 export const streamChat = async (question, res) => {
-    const { retrievalChain, retriever } = await createRAGChain();
+    try {
+        const { retrievalChain, retriever } = await createRAGChain();
 
-    // Get sources first
-    const relevantDocs = await retriever.getRelevantDocuments(question);
-    const sources = relevantDocs.map((doc) => ({
-        filename: doc.metadata.source,
-        pageContent: doc.pageContent.substring(0, 150) + "...",
-        score: doc.metadata.score || null,
-    }));
+        // Get sources first
+        const relevantDocs = await retriever.getRelevantDocuments(question);
+        const sources = relevantDocs.map((doc) => ({
+            filename: doc.metadata.source,
+            pageContent: doc.pageContent.substring(0, 150) + "...",
+            score: doc.metadata.score || null,
+        }));
 
-    // Stream the response
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-    res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL || "*");
+        // Stream the response
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
+        res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL || "*");
 
-    // Send sources first
-    res.write(`data: ${JSON.stringify({ type: "sources", sources })}\n\n`);
+        // Send sources first
+        res.write(`data: ${JSON.stringify({ type: "sources", sources })}\n\n`);
 
-    let fullAnswer = "";
+        let fullAnswer = "";
 
-    const stream = await retrievalChain.stream({ input: question });
+        const stream = await retrievalChain.stream({ input: question });
 
-    for await (const chunk of stream) {
-        if (chunk.answer) {
-            fullAnswer += chunk.answer;
-            res.write(
-                `data: ${JSON.stringify({ type: "token", token: chunk.answer })}\n\n`
-            );
+        for await (const chunk of stream) {
+            if (chunk.answer) {
+                fullAnswer += chunk.answer;
+                res.write(
+                    `data: ${JSON.stringify({ type: "token", token: chunk.answer })}\n\n`
+                );
+            }
         }
+
+        res.write(`data: ${JSON.stringify({ type: "done", fullAnswer })}\n\n`);
+        res.end();
+
+        return { answer: fullAnswer, sources };
+    } catch (error) {
+        console.error("RAG Stream Error:", error);
+
+        let errorCode = "UNKNOWN_ERROR";
+        let errorMessage = "An unexpected error occurred.";
+
+        if (error.message?.includes("quota") || error.message?.includes("429")) {
+            errorCode = "QUOTA_EXCEEDED";
+            errorMessage = "OpenAI API quota exceeded. Please check your credits.";
+        }
+
+        if (!res.headersSent) {
+            res.setHeader("Content-Type", "text/event-stream");
+            res.setHeader("Cache-Control", "no-cache");
+            res.setHeader("Connection", "keep-alive");
+            res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL || "*");
+        }
+
+        res.write(`data: ${JSON.stringify({ type: "error", code: errorCode, message: errorMessage })}\n\n`);
+        res.end();
+
+        throw error; // Rethrow to let controller know
     }
-
-    res.write(`data: ${JSON.stringify({ type: "done", fullAnswer })}\n\n`);
-    res.end();
-
-    return { answer: fullAnswer, sources };
 };

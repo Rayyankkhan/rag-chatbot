@@ -9,7 +9,8 @@
         "start": "node src/server.js"
     },
     "dependencies": {
-        "@langchain/community": "^0.3.0",
+        "@huggingface/inference": "^4.13.15",
+        "@langchain/community": "^0.3.59",
         "@langchain/core": "^0.3.0",
         "@langchain/mongodb": "^0.1.0",
         "@langchain/openai": "^0.3.0",

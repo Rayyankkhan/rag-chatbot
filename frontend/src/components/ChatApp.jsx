@@ -69,6 +69,22 @@ const ChatApp = () => {
                     try {
                         const data = JSON.parse(line.slice(6));
 
+                        if (data.type === "error") {
+                            const errorMsg =
+                                data.code === "QUOTA_EXCEEDED"
+                                    ? "⚠️ OpenAI API quota exceeded. Please check your plan or credits. Response cannot be generated at this time."
+                                    : `❌ Error: ${data.message || "An unexpected error occurred."}`;
+
+                            setMessages((prev) =>
+                                prev.map((m) =>
+                                    m.id === assistantId
+                                        ? { ...m, content: errorMsg, streaming: false }
+                                        : m
+                                )
+                            );
+                            break;
+                        }
+
                         if (data.type === "sources") {
                             setMessages((prev) =>
                                 prev.map((m) =>
@@ -97,7 +113,11 @@ const ChatApp = () => {
             setMessages((prev) =>
                 prev.map((m) =>
                     m.id === assistantId
-                        ? { ...m, content: "❌ Something went wrong. Please try again.", streaming: false }
+                        ? {
+                            ...m,
+                            content: "❌ Failed to connect to server. Please try again later.",
+                            streaming: false,
+                        }
                         : m
                 )
             );

@@ -29,7 +29,17 @@ export const chat = async (req, res) => {
     } catch (error) {
         console.error("Chat error:", error);
         if (!res.headersSent) {
-            res.status(500).json({ error: "Failed to process message" });
+            let status = 500;
+            let errorCode = "SERVER_ERROR";
+            let message = "Failed to process message";
+
+            if (error.message?.includes("quota") || error.message?.includes("429")) {
+                status = 429;
+                errorCode = "QUOTA_EXCEEDED";
+                message = "OpenAI API quota exceeded. Please check your billing details.";
+            }
+
+            res.status(status).json({ error: errorCode, message });
         }
     }
 };
